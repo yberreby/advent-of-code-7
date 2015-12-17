@@ -5,7 +5,22 @@
 // When the user wants to know the signal on a wire (keyed by String), the emulator recursively
 // expands wire signals and caches them
 
+// (?:(?:(\w+) (AND|OR|RSHIFT|LSHIFT) (\w+))|(?:(NOT) (\w+))|(\w+)) -> (\w+)
+// that's awful, better have three small regexes
+
 const PROGRAM: &'static str = include_str!("../program.txt");
+
+extern crate regex;
+use regex::Regex;
+
+#[macro_use]
+extern crate lazy_static;
+lazy_static! {
+    static ref ASSIGN_REGEX: Regex = Regex::new(r"^(\w+) -> (\w+)$").unwrap();
+    static ref NOT_REGEX: Regex = Regex::new(r"^NOT (\w+) -> (\w+)$").unwrap();
+    static ref BINARY_OP_REGEX: Regex = Regex::new(r"^(\w+) ([A-Z]+) (\w+) -> [a-z]+$").unwrap();
+}
+
 
 use std::collections::HashMap;
 

@@ -1,6 +1,8 @@
 [package]
+authors = ["Yohai Berreby (filsmick) <yohaiberreby@gmail.com>"]
 name = "7"
 version = "0.1.0"
-authors = ["Yohai Berreby (filsmick) <yohaiberreby@gmail.com>"]
 
 [dependencies]
+lazy_static = "0.1.15"
+regex = "0.1.43"
