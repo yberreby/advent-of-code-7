@@ -4,25 +4,6 @@ type Wire = String;
 type Data = u16;
 
 
-enum Operation {
-    Rshift(Data, Data),
-    Lshift(Data, Data),
-    Or(Data, Data),
-    And(Data, Data),
-    Not(Data),
-}
-
-impl Operation {
-    fn execute(&self) -> Data {
-        match *self {
-            Operation::Rshift(a, b) => a >> b,
-            Operation::Lshift(a, b) => a << b,
-            Operation::Or(a, b) => a | b,
-            Operation::And(a, b) => a & b,
-            Operation::Not(a) => !a,
-        }
-    }
-}
 
 enum InstructionInput {
     Constant(Data),
