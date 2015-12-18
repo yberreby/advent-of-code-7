@@ -58,6 +58,9 @@ pub enum Operation {
 // }
 
 
+mod error;
+
+
 mod parse;
 use parse::{parse_instruction, Instruction};
 

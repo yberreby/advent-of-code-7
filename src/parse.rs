@@ -4,7 +4,7 @@ use Value;
 use Operation;
 use WireName;
 
-
+use super::error::{ParseError, ParseErrorCode, ParseResult};
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -21,47 +21,61 @@ pub struct Instruction {
 //        <literal>
 
 
-pub enum ErrorCode {
-
-}
-
 
 pub struct Parser<I: Iterator<Item = io::Result<u8>>> {
     input: LineColIterator<I>,
+    current_char: Option<u8>,
 }
 
 impl<I: Iterator<Item = io::Result<u8>>> Parser<I> {
     pub fn new(iter: I) -> Parser<I> {
-        Parser { input: LineColIterator::new(iter) }
-    }
-
-    fn parse(&mut self) -> Instruction {
-        let instruction_input = self.parse_value();
-        self.parse_assignment_arrow();
-        let output_wire = self.parse_wire_name();
-
-        Instruction {
-            input: instruction_input,
-            output_wire: output_wire,
+        Parser {
+            input: LineColIterator::new(iter),
+            current_char: None,
         }
     }
 
-    fn parse_value(&mut self) -> Value {
+    fn parse(&mut self) -> ParseResult<Instruction> {
+        let instruction_input = try!(self.parse_value());
+        try!(self.parse_assignment_arrow());
+        let output_wire = try!(self.parse_wire_name());
+
+        Ok(Instruction {
+            input: instruction_input,
+            output_wire: output_wire,
+        })
+    }
+
+    fn next_char(&mut self) -> ParseResult<Option<u8>> {
+        match self.current_char.take() {
+            Some(ch) => Ok(Some(ch)),
+            None => {
+                match self.input.next() {
+                    Some(Err(err)) => Err(ParseError::IoError(err)),
+                    Some(Ok(ch)) => Ok(Some(ch)),
+                    None => Ok(None),
+                }
+            }
+        }
+    }
+
+    fn parse_value(&mut self) -> ParseResult<Value> {
+
         unimplemented!()
     }
 
-    fn parse_wire_name(&mut self) -> String {
+    fn parse_wire_name(&mut self) -> ParseResult<String> {
         unimplemented!()
     }
 
-    fn parse_assignment_arrow(&mut self) {
+    fn parse_assignment_arrow(&mut self) -> ParseResult<()> {
         unimplemented!()
     }
 }
 
 
 pub fn parse_instruction(s: &str) -> Instruction {
-    Parser::new(s.bytes().map(|c| Ok(c))).parse()
+    Parser::new(s.bytes().map(|c| Ok(c))).parse().unwrap()
 }
 
 pub fn parse_program(program: &str) -> Vec<Instruction> {
