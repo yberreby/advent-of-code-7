@@ -21,23 +21,47 @@ pub struct Instruction {
 //        <literal>
 
 
-pub struct InstructionParser<I: Iterator<Item = io::Result<u8>>> {
+pub enum ErrorCode {
+
+}
+
+
+pub struct Parser<I: Iterator<Item = io::Result<u8>>> {
     input: LineColIterator<I>,
 }
 
-impl<I: Iterator<Item = io::Result<u8>>> InstructionParser<I> {
-    pub fn new(iter: I) -> InstructionParser<I> {
-        InstructionParser { input: LineColIterator::new(iter) }
+impl<I: Iterator<Item = io::Result<u8>>> Parser<I> {
+    pub fn new(iter: I) -> Parser<I> {
+        Parser { input: LineColIterator::new(iter) }
     }
 
     fn parse(&mut self) -> Instruction {
+        let instruction_input = self.parse_value();
+        self.parse_assignment_arrow();
+        let output_wire = self.parse_wire_name();
+
+        Instruction {
+            input: instruction_input,
+            output_wire: output_wire,
+        }
+    }
+
+    fn parse_value(&mut self) -> Value {
+        unimplemented!()
+    }
+
+    fn parse_wire_name(&mut self) -> String {
+        unimplemented!()
+    }
+
+    fn parse_assignment_arrow(&mut self) {
         unimplemented!()
     }
 }
 
 
 pub fn parse_instruction(s: &str) -> Instruction {
-    InstructionParser::new(s.bytes().map(|c| Ok(c))).parse()
+    Parser::new(s.bytes().map(|c| Ok(c))).parse()
 }
 
 pub fn parse_program(program: &str) -> Vec<Instruction> {
