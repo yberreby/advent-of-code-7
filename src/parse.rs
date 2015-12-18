@@ -1,5 +1,7 @@
 use regex::Regex;
-use bytecode::Value;
+use Value;
+use Operation;
+use WireName;
 
 lazy_static! {
     static ref ASSIGN_REGEX: Regex = Regex::new(r"^(\w+) -> (\w+)$").unwrap();
@@ -24,11 +26,23 @@ pub struct Instruction {
 
 pub fn parse_instruction(s: &str) -> Instruction {
     match ASSIGN_REGEX.captures(s) {
-        Some(captures) => {}
-        None => panic!(),
+        Some(captures) => {
+            Instruction {
+                input: Value::Wire(captures.at(1).unwrap().into()),
+                output_wire: captures.at(2).unwrap().into(),
+            }
+        }
+        None => {
+            match NOT_REGEX.captures(s) {
+                Some(captures) => {
+                    Instruction {
+                        input: Value::Operation(Box::new(Operation::Not())),
+                        output_wire
+                    }
+                }
+            }
+        },
     }
-
-    unimplemented!()
 }
 
 #[test]
