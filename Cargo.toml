@@ -6,3 +6,4 @@ version = "0.1.0"
 [dependencies]
 lazy_static = "0.1.15"
 regex = "0.1.43"
+serde = "0.6.6"

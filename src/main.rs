@@ -10,11 +10,7 @@
 
 const PROGRAM: &'static str = include_str!("../program.txt");
 
-extern crate regex;
-#[macro_use]
-extern crate lazy_static;
-
-
+extern crate serde;
 
 use std::collections::HashMap;
 

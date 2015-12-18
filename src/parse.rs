@@ -1,13 +1,10 @@
-use regex::Regex;
+use serde::iter::LineColIterator;
+use std::io;
 use Value;
 use Operation;
 use WireName;
 
-lazy_static! {
-    static ref ASSIGN_REGEX: Regex = Regex::new(r"^(\w+) -> (\w+)$").unwrap();
-    static ref NOT_REGEX: Regex = Regex::new(r"^NOT (\w+) -> (\w+)$").unwrap();
-    static ref BINARY_OP_REGEX: Regex = Regex::new(r"^(\w+) ([A-Z]+) (\w+) -> [a-z]+$").unwrap();
-}
+
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -24,26 +21,31 @@ pub struct Instruction {
 //        <literal>
 
 
-pub fn parse_instruction(s: &str) -> Instruction {
-    match ASSIGN_REGEX.captures(s) {
-        Some(captures) => {
-            Instruction {
-                input: Value::Wire(captures.at(1).unwrap().into()),
-                output_wire: captures.at(2).unwrap().into(),
-            }
-        }
-        None => {
-            match NOT_REGEX.captures(s) {
-                Some(captures) => {
-                    Instruction {
-                        input: Value::Operation(Box::new(Operation::Not())),
-                        output_wire
-                    }
-                }
-            }
-        },
+pub struct InstructionParser<I: Iterator<Item = io::Result<u8>>> {
+    input: LineColIterator<I>,
+}
+
+impl<I: Iterator<Item = io::Result<u8>>> InstructionParser<I> {
+    pub fn new(iter: I) -> InstructionParser<I> {
+        InstructionParser { input: LineColIterator::new(iter) }
+    }
+
+    fn parse(&mut self) -> Instruction {
+        unimplemented!()
     }
 }
+
+
+pub fn parse_instruction(s: &str) -> Instruction {
+    InstructionParser::new(s.bytes().map(|c| Ok(c))).parse()
+}
+
+pub fn parse_program(program: &str) -> Vec<Instruction> {
+    program.lines().map(|l| parse_instruction(l)).collect()
+}
+
+
+// Tests
 
 #[test]
 fn test_parse_constant_instruction() {
