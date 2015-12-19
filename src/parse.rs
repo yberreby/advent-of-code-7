@@ -4,7 +4,7 @@ use Value;
 use Operation;
 use WireName;
 
-use super::error::{ParseError, ParseErrorCode, ParseResult};
+use super::error::{Error, ErrorCode, ParseResult};
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -21,6 +21,20 @@ pub struct Instruction {
 //        <literal>
 
 // Utility functions.
+
+fn is_ascii_number(c: u8) -> bool {
+    48 <= c && c <= 57
+}
+
+#[test]
+fn test_is_ascii_number() {
+    assert!(is_ascii_number(b'0'));
+    assert!(is_ascii_number(b'5'));
+    assert!(is_ascii_number(b'9'));
+    assert!(!is_ascii_number(b'a'));
+    assert!(!is_ascii_number(b'Z'));
+    assert!(!is_ascii_number(b'y'));
+}
 
 fn is_ascii_lowercase(c: u8) -> bool {
     97 <= c && c <= 122
@@ -79,7 +93,7 @@ impl<I: Iterator<Item = io::Result<u8>>> Parser<I> {
             Some(ch) => Ok(Some(ch)),
             None => {
                 match self.input.next() {
-                    Some(Err(err)) => Err(ParseError::IoError(err)),
+                    Some(Err(err)) => Err(Error::IoError(err)),
                     Some(Ok(ch)) => Ok(Some(ch)),
                     None => Ok(None),
                 }
@@ -92,7 +106,7 @@ impl<I: Iterator<Item = io::Result<u8>>> Parser<I> {
             Some(ch) => Ok(Some(ch)),
             None => {
                 match self.input.next() {
-                    Some(Err(err)) => Err(ParseError::IoError(err)),
+                    Some(Err(err)) => Err(Error::IoError(err)),
                     Some(Ok(ch)) => {
                         self.current_char = Some(ch);
                         Ok(self.current_char)
@@ -103,8 +117,13 @@ impl<I: Iterator<Item = io::Result<u8>>> Parser<I> {
         }
     }
 
+    fn syntax_error(&self, code: ErrorCode) -> Error {
+        Error::SyntaxError(code, self.input.line(), self.input.col())
+    }
+
     fn parse_value(&mut self) -> ParseResult<Value> {
         match try!(self.peek()) {
+            Some(c) if is_ascii_number(c) => self.parse_number().map(Value::Constant),
             Some(c) if is_ascii_lowercase(c) => {
                 let wire_name = try!(self.parse_wire_name());
                 try!(self.parse_whitespace());
@@ -120,19 +139,83 @@ impl<I: Iterator<Item = io::Result<u8>>> Parser<I> {
         }
     }
 
+    fn parse_number(&mut self) -> ParseResult<u16> {
+        let mut strbuf = String::with_capacity(3);
+
+        while let Some(c) = try!(self.next_char()) {
+            if !is_ascii_number(c) {
+                return Err(self.syntax_error(ErrorCode::InvalidNumberLiteral));
+            }
+
+            strbuf.push(::std::char::from_u32(c as u32).unwrap());
+        }
+
+        Ok(strbuf.parse().unwrap())
+    }
+
     fn parse_whitespace(&mut self) -> ParseResult<()> {
-        unimplemented!()
+        loop {
+            match try!(self.peek()) {
+                Some(b' ') => {
+                    self.next_char();
+                }
+                _ => return Ok(()),
+            }
+        }
     }
 
     fn parse_wire_name(&mut self) -> ParseResult<String> {
-        unimplemented!()
+        let mut strbuf = String::with_capacity(3);
+
+        while let Some(c) = try!(self.next_char()) {
+            if !is_ascii_lowercase(c) {
+                return Err(self.syntax_error(ErrorCode::UppercaseLetterInWireName));
+            }
+            strbuf.push(::std::char::from_u32(c as u32).unwrap());
+        }
+
+        Ok(strbuf)
     }
 
     fn parse_assignment_arrow(&mut self) -> ParseResult<()> {
-        unimplemented!()
+        match try!(self.peek()) {
+            Some(b'-') => {
+                match try!(self.peek()) {
+                    Some(b'>') => Ok(()),
+                    _ => panic!(),
+                }
+            }
+            _ => panic!(),
+        }
     }
 }
 
+#[test]
+fn test_parse_value_number() {
+    let mut parser = Parser::new("123".bytes().map(|x| Ok(x)));
+    assert_eq!(parser.parse_value().unwrap(), Value::Constant(123));
+}
+
+#[test]
+fn test_parse_invalid_number() {
+    let mut parser = Parser::new("123x".bytes().map(|x| Ok(x)));
+
+    match parser.parse_number() {
+        Ok(v) => panic!("invalid number parsed as valid: {}", v),
+        Err(e) => {
+            match e {
+                Error::SyntaxError(ErrorCode::InvalidNumberLiteral, 1, 4) => {}
+                e => panic!("unexpected error: {:?}", e),
+            }
+        }
+    }
+}
+
+#[test]
+fn test_parse_wire_name() {
+    let mut parser = Parser::new("ax".bytes().map(|x| Ok(x)));
+    assert_eq!(parser.parse_wire_name().unwrap(), "ax".to_owned());
+}
 
 pub fn parse_instruction(s: &str) -> Instruction {
     Parser::new(s.bytes().map(|c| Ok(c))).parse().unwrap()

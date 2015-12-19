@@ -1,14 +1,15 @@
 use std::io;
 
-#[derive(Debug)]
-pub enum ParseErrorCode {
-
+#[derive(Debug, PartialEq)]
+pub enum ErrorCode {
+    UppercaseLetterInWireName,
+    InvalidNumberLiteral,
 }
 
 #[derive(Debug)]
-pub enum ParseError {
-    SyntaxError(ParseErrorCode, usize, usize),
+pub enum Error {
+    SyntaxError(ErrorCode, usize, usize),
     IoError(io::Error),
 }
 
-pub type ParseResult<T> = Result<T, ParseError>;
+pub type ParseResult<T> = Result<T, Error>;
