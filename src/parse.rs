@@ -20,7 +20,35 @@ pub struct Instruction {
 //        <wire>
 //        <literal>
 
+// Utility functions.
 
+fn is_ascii_lowercase(c: u8) -> bool {
+    97 <= c && c <= 122
+}
+
+#[test]
+fn test_is_ascii_lowercase() {
+    assert!(is_ascii_lowercase(b'a'));
+    assert!(is_ascii_lowercase(b'd'));
+    assert!(is_ascii_lowercase(b'z'));
+    assert!(!is_ascii_lowercase(b'A'));
+    assert!(!is_ascii_lowercase(b'T'));
+    assert!(!is_ascii_lowercase(b'Z'));
+}
+
+fn is_ascii_uppercase(c: u8) -> bool {
+    65 <= c && c <= 90
+}
+
+#[test]
+fn test_is_ascii_uppercase() {
+    assert!(!is_ascii_uppercase(b'a'));
+    assert!(!is_ascii_uppercase(b'd'));
+    assert!(!is_ascii_uppercase(b'z'));
+    assert!(is_ascii_uppercase(b'A'));
+    assert!(is_ascii_uppercase(b'T'));
+    assert!(is_ascii_uppercase(b'Z'));
+}
 
 pub struct Parser<I: Iterator<Item = io::Result<u8>>> {
     input: LineColIterator<I>,
@@ -59,8 +87,40 @@ impl<I: Iterator<Item = io::Result<u8>>> Parser<I> {
         }
     }
 
-    fn parse_value(&mut self) -> ParseResult<Value> {
+    fn peek(&mut self) -> ParseResult<Option<u8>> {
+        match self.current_char {
+            Some(ch) => Ok(Some(ch)),
+            None => {
+                match self.input.next() {
+                    Some(Err(err)) => Err(ParseError::IoError(err)),
+                    Some(Ok(ch)) => {
+                        self.current_char = Some(ch);
+                        Ok(self.current_char)
+                    }
+                    None => Ok(None),
+                }
+            }
+        }
+    }
 
+    fn parse_value(&mut self) -> ParseResult<Value> {
+        match try!(self.peek()) {
+            Some(c) if is_ascii_lowercase(c) => {
+                let wire_name = try!(self.parse_wire_name());
+                try!(self.parse_whitespace());
+
+                match try!(self.peek()) {
+                    Some(c) if is_ascii_uppercase(c) => {}
+                    _ => panic!(),
+                }
+
+                unimplemented!()
+            }
+            _ => panic!(),
+        }
+    }
+
+    fn parse_whitespace(&mut self) -> ParseResult<()> {
         unimplemented!()
     }
 
