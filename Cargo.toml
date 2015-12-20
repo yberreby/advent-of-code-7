@@ -1,6 +1,6 @@
 [package]
 authors = ["Yohai Berreby (filsmick) <yohaiberreby@gmail.com>"]
-name = "7"
+name = "aoc-7-compiler"
 version = "0.1.0"
 
 [dependencies]

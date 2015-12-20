@@ -5,10 +5,20 @@ fn evaluate(value: &Value,
             value_map: &HashMap<String, Value>,
             output_map: &mut HashMap<String, u16>)
             -> u16 {
+
+    println!("evaluating {:?}", value);
+
     match *value {
         Value::Integer(x) => x,
         Value::Wire(ref wire_name) => {
-            evaluate(value_map.get(wire_name).unwrap(), value_map, output_map)
+            if let Some(v) = output_map.get(wire_name) {
+                println!("cached result");
+                return *v;
+            }
+
+            let res = evaluate(value_map.get(wire_name).unwrap(), value_map, output_map);
+            output_map.insert(wire_name.clone(), res);
+            res
         }
         Value::Operation(ref op) => {
             match **op {
@@ -44,6 +54,10 @@ pub fn run(instructions: Vec<Instruction>) -> HashMap<String, u16> {
     }
 
     let mut output_map = HashMap::new();
+
+    println!("the value of a is: {}",
+             evaluate(&Value::Wire("a".into()), &value_map, &mut output_map));
+    ::std::process::exit(0);
 
     for (key, value) in &value_map {
         let result = evaluate(value, &value_map, &mut output_map);
