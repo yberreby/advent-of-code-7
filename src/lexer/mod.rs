@@ -209,4 +209,28 @@ mod tests {
                         Token::AssignmentArrow,
                         Token::Identifier("h")]);
     }
+
+    #[test]
+    fn lex_program() {
+        let program = "bn RSHIFT 2 -> bo
+lf RSHIFT 1 -> ly
+fo RSHIFT 3 -> fq
+cj OR cp -> cq
+fo OR \
+                       fz -> ga
+t OR s -> u
+lx -> a";
+
+        let expected = vec![
+            Token::Identifier("bn"), Token::Operator(Operator::Rshift), Token::Integer(2), Token::AssignmentArrow, Token::Identifier("bo"), Token::Newline,
+            Token::Identifier("lf"), Token::Operator(Operator::Rshift), Token::Integer(1), Token::AssignmentArrow, Token::Identifier("ly"), Token::Newline,
+            Token::Identifier("fo"), Token::Operator(Operator::Rshift), Token::Integer(3), Token::AssignmentArrow, Token::Identifier("fq"), Token::Newline,
+            Token::Identifier("cj"), Token::Operator(Operator::Or), Token::Identifier("cp"), Token::AssignmentArrow, Token::Identifier("cq"), Token::Newline,
+            Token::Identifier("fo"), Token::Operator(Operator::Or), Token::Identifier("fz"), Token::AssignmentArrow, Token::Identifier("ga"), Token::Newline,
+            Token::Identifier("t"), Token::Operator(Operator::Or), Token::Identifier("s"), Token::AssignmentArrow, Token::Identifier("u"), Token::Newline,
+            Token::Identifier("lx"), Token::AssignmentArrow, Token::Identifier("a"),
+        ];
+
+        assert_eq!(lex(program.as_bytes()), expected);
+    }
 }
