@@ -117,7 +117,17 @@ impl<'input> Lexer<'input> {
                     _ => panic!("unknown keyword '{}'", keyword_str),
                 }
             }
-            Some(c) => panic!("unexpected character '{}'", c),
+            Some(b'-') => {
+                self.bump();
+                match self.current_char() {
+                    Some(b'>') => {
+                        self.bump();
+                        return Some(Token::AssignmentArrow);
+                    }
+                    c => panic!("expected '>', found '{:?}'", c),
+                }
+            }
+            Some(c) => panic!("unexpected character '{}' at index {}", c, self.idx),
             None => return None,
         }
 
