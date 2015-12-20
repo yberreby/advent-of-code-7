@@ -100,7 +100,7 @@ impl<'input> Lexer<'input> {
 
                 return Some(Token::Identifier(identifier_str));
             }
-            Some(c) => panic!(),
+            Some(c) => panic!("unexpected character '{}'", c),
             None => return None,
         }
 
