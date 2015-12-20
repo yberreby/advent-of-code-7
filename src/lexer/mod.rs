@@ -114,7 +114,7 @@ impl<'input> Lexer<'input> {
                     "OR" => return Some(Token::Operator(Operator::Or)),
                     "LSHIFT" => return Some(Token::Operator(Operator::Lshift)),
                     "RSHIFT" => return Some(Token::Operator(Operator::Rshift)),
-                    _ => panic!(),
+                    _ => panic!("unknown keyword '{}'", keyword_str),
                 }
             }
             Some(c) => panic!("unexpected character '{}'", c),
