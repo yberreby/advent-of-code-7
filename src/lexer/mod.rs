@@ -100,6 +100,23 @@ impl<'input> Lexer<'input> {
 
                 return Some(Token::Identifier(identifier_str));
             }
+            Some(b'A'...b'Z') => {
+                while let Some(b'A'...b'Z') = self.current_char() {
+                    self.bump();
+                }
+
+                let keyword_buf = &self.buffer[start_idx..self.idx];
+                let keyword_str = ::std::str::from_utf8(keyword_buf).unwrap();
+
+                match keyword_str {
+                    "NOT" => return Some(Token::Operator(Operator::Not)),
+                    "AND" => return Some(Token::Operator(Operator::And)),
+                    "OR" => return Some(Token::Operator(Operator::Or)),
+                    "LSHIFT" => return Some(Token::Operator(Operator::Lshift)),
+                    "RSHIFT" => return Some(Token::Operator(Operator::Rshift)),
+                    _ => panic!(),
+                }
+            }
             Some(c) => panic!("unexpected character '{}'", c),
             None => return None,
         }
@@ -133,5 +150,15 @@ mod tests {
         assert_eq!(lex(b"ax"), vec![Token::Identifier("ax")]);
         assert_eq!(lex(b"fu"), vec![Token::Identifier("fu")]);
         assert_eq!(lex(b"yz"), vec![Token::Identifier("yz")]);
+    }
+
+    #[test]
+    fn lex_operators() {
+        assert_eq!(lex(b"NOT"), vec![Token::Operator(Operator::Not)]);
+        assert_eq!(lex(b"AND"), vec![Token::Operator(Operator::And)]);
+        assert_eq!(lex(b"OR"), vec![Token::Operator(Operator::Or)]);
+        assert_eq!(lex(b"LSHIFT"), vec![Token::Operator(Operator::Lshift)]);
+        assert_eq!(lex(b"RSHIFT"), vec![Token::Operator(Operator::Rshift)]);
+
     }
 }
