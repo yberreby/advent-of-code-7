@@ -22,14 +22,22 @@ pub enum Operation {
     Not(Value),
 }
 
+use std::cell::Cell;
 
 struct Parser<'input> {
     tokens: Vec<Token<'input>>,
-    idx: usize,
+    idx: Cell<usize>,
 }
 
 impl<'input> Parser<'input> {
-    pub fn parse(&mut self) -> Vec<Instruction> {
+    pub fn new(tokens: Vec<Token<'input>>) -> Parser<'input> {
+        Parser {
+            tokens: tokens,
+            idx: Cell::new(0),
+        }
+    }
+
+    pub fn parse(&self) -> Vec<Instruction> {
         let mut instructions = Vec::new();
 
         while let Some(instruction) = self.parse_instruction() {
@@ -40,30 +48,45 @@ impl<'input> Parser<'input> {
     }
 
     fn current_token(&self) -> Option<&Token<'input>> {
-        self.tokens.get(self.idx)
+        self.tokens.get(self.idx())
     }
 
-    fn bump(&mut self) {
-        self.idx += 1
+    fn bump(&self) {
+        self.idx.set(self.idx() + 1)
     }
 
     fn idx(&self) -> usize {
-        self.idx
+        self.idx.get()
     }
 
-    fn parse_instruction(&mut self) -> Option<Instruction> {
-        let value = self.parse_value();
+    fn parse_instruction(&self) -> Option<Instruction> {
+        let value = match self.parse_value() {
+            Some(v) => v,
+            None => return None,
+        }; // what to do on None?..;
 
         // assignment arrow
+        match self.current_token() {
+            Some(&Token::AssignmentArrow) => {
+                self.bump();
+            }
+            other => panic!("expected assignment arrow, found {:?}", other),
+        }
 
-        // output wire
+        let output_wire = match self.current_token() {
+            Some(&Token::Identifier(id)) => id,
+            other => panic!("expected identifier, found {:?}", other),
+        };
 
-        unimplemented!()
+        self.bump();
+
+        Some(Instruction {
+            input: value,
+            output_wire: output_wire.into(),
+        })
     }
 
-
-
-    fn parse_value(&mut self) -> Option<Value> {
+    fn parse_value(&self) -> Option<Value> {
         match self.current_token() {
             Some(&Token::Integer(x)) => {
                 self.bump();
@@ -73,16 +96,14 @@ impl<'input> Parser<'input> {
                     _ => panic!(),
                 }
             }
-            _ => panic!(),
+            None => None,
+            other => panic!("unexpected {:?}", other),
         }
     }
 }
 
 pub fn parse<'input>(tokens: Vec<Token<'input>>) -> Vec<Instruction> {
-    let mut parser = Parser {
-        tokens: tokens,
-        idx: 0,
-    };
+    let mut parser = Parser::new(tokens);
     parser.parse()
 }
 
@@ -94,10 +115,9 @@ mod tests {
 
     #[test]
     fn test_parse_value_integer() {
-        let mut parser = Parser {
-            tokens: vec![Token::Integer(123), Token::AssignmentArrow, Token::Identifier("aa")],
-            idx: 0,
-        };
+        let mut parser = Parser::new(vec![Token::Integer(123),
+                                          Token::AssignmentArrow,
+                                          Token::Identifier("aa")]);
 
         assert_eq!(parser.parse_value(), Some(Value::Integer(123)));
     }
