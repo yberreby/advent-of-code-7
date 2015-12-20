@@ -14,6 +14,15 @@ pub enum Value {
     Integer(u16),
 }
 
+impl Value {
+    pub fn from_operand(operand: Operand) -> Value {
+        match operand {
+            Operand::Integer(x) => Value::Integer(x),
+            Operand::Wire(s) => Value::Wire(s),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Operand {
     Integer(u16),
