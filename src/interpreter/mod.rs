@@ -81,4 +81,44 @@ mod tests {
                             }]),
                    expected);
     }
+
+    #[test]
+    fn test_run_full_program() {
+        let program_source = "123 -> x
+456 -> y
+x AND y -> d
+x OR y -> e
+x LSHIFT 2 -> f
+y RSHIFT \
+                              2 -> g
+NOT x -> h
+NOT y -> i";
+
+        let tokens = ::lexer::lex(program_source);
+        let instructions = ::parser::parse(tokens);
+        let output = run(instructions);
+
+        //
+        // d: 72
+        // e: 507
+        // f: 492
+        // g: 114
+        // h: 65412
+        // i: 65079
+        // x: 123
+        // y: 456
+        //
+
+        let mut expected = HashMap::new();
+        expected.insert("d".into(), 72);
+        expected.insert("e".into(), 507);
+        expected.insert("f".into(), 492);
+        expected.insert("g".into(), 114);
+        expected.insert("h".into(), 65412);
+        expected.insert("i".into(), 65079);
+        expected.insert("x".into(), 123);
+        expected.insert("y".into(), 456);
+
+        assert_eq!(output, expected);
+    }
 }
