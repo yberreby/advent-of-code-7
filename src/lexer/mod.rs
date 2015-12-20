@@ -131,18 +131,9 @@ impl<'input> Lexer<'input> {
                 }
             }
             Some(c) => panic!("unexpected character '{}' at index {}", c, self.idx),
+            // EOF
             None => return None,
         }
-
-
-
-        //
-        //
-        // let real_state =
-        // match state.input.next().unw
-        //
-
-        unimplemented!()
     }
 }
 
