@@ -35,23 +35,20 @@ fn evaluate(value: &Value,
 }
 
 pub fn run(instructions: Vec<Instruction>) -> HashMap<String, u16> {
-    // let mut value_map = HashMap::new();
+    let mut value_map = HashMap::new();
 
-    // for instruction in instructions {
-    //     value_map.insert(instruction.output_wire, instruction.input);
-    // }
+    for instruction in instructions {
+        value_map.insert(instruction.output_wire, instruction.input);
+    }
 
-    // let mut output_map = HashMap::new();
+    let mut output_map = HashMap::new();
 
-    // for (key, value) in &value_map {
-    //     // fills the output map gradually
-    //     evaluate(&key, value, &value_map, &mut output_map);
-    // }
+    for (key, value) in &value_map {
+        let result = evaluate(value, &value_map, &mut output_map);
+        output_map.insert(key.clone(), result);
+    }
 
-    // output_map
-
-
-    unimplemented!()
+    output_map
 }
 
 mod tests {
