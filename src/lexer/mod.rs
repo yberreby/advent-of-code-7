@@ -161,4 +161,9 @@ mod tests {
         assert_eq!(lex(b"RSHIFT"), vec![Token::Operator(Operator::Rshift)]);
 
     }
+
+    #[test]
+    fn lex_assignment_arrow() {
+        assert_eq!(lex(b"->"), vec![Token::AssignmentArrow]);
+    }
 }
