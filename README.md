@@ -52,4 +52,5 @@ The challenge was to compute the signal sent to a wire from a [set of instructio
     i: 65079
     x: 123
     y: 456
-    In little Bobby's kit's instructions booklet (provided as your puzzle input), what signal is ultimately provided to wire a?
+    In little Bobby's kit's instructions booklet (provided as your puzzle input),
+    what signal is ultimately provided to wire a?
