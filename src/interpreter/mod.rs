@@ -7,7 +7,9 @@ fn evaluate(value: &Value,
             -> u16 {
     match *value {
         Value::Integer(x) => x,
-        Value::Wire(_) => evaluate(value, value_map, output_map),
+        Value::Wire(ref wire_name) => {
+            evaluate(value_map.get(wire_name).unwrap(), value_map, output_map)
+        }
         Value::Operation(ref op) => {
             match **op {
                 Operation::Rshift(ref a, ref b) => {

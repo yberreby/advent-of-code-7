@@ -57,8 +57,19 @@ impl<'input> Parser<'input> {
     pub fn parse(&self) -> Vec<Instruction> {
         let mut instructions = Vec::new();
 
-        while let Some(instruction) = self.parse_instruction() {
-            instructions.push(instruction);
+        loop {
+            if let Some(instruction) = self.parse_instruction() {
+                instructions.push(instruction);
+            } else {
+                break;
+            }
+
+            match self.current_token() {
+                Some(&Token::Newline) => {}
+                None => break,
+                other => panic!("unexpected token {:?}", other),
+            }
+            self.bump();
         }
 
         instructions
@@ -204,6 +215,28 @@ mod tests {
                    vec![Instruction {
                             input: Value::Operation(Box::new(Operation::Not(Operand::Integer(123)))),
                             output_wire: "ax".into(),
+                        }]);
+    }
+
+    #[test]
+    fn test_parse_two_instructions() {
+        let tokens = vec![Token::Integer(123),
+                          Token::AssignmentArrow,
+                          Token::Identifier("aa"),
+                          Token::Newline,
+                          Token::Integer(456),
+                          Token::AssignmentArrow,
+                          Token::Identifier("zz")];
+
+        assert_eq!(parse(tokens),
+                   vec![Instruction {
+                            input: Value::Integer(123),
+                            output_wire: "aa".into(),
+                        },
+
+                        Instruction {
+                            input: Value::Integer(456),
+                            output_wire: "zz".into(),
                         }]);
     }
 }
