@@ -1,6 +1,13 @@
 # advent-of-code-7
 A lexer, parser and interpreter for day 7 of the Advent of Code.
 
+## Benchmark
+It finds the answer to both parts of the challenge pretty quickly:
+
+    ../../target/release/aoc-7-compiler  0.00s user 0.00s system 75% cpu 0.003 total
+
+## The challenge
+
 The challenge was to compute the signal sent to a wire from a [set of instructions](https://github.com/yberreby/advent-of-code-7/blob/master/source.txt):
 
     This year, Santa brought little Bobby Tables a set of wires and
