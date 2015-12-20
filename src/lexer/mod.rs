@@ -73,7 +73,10 @@ impl<'input> Lexer<'input> {
         let start_idx = self.idx;
 
         match self.current_char() {
-            Some(b'\n') => return Some(Token::Newline),
+            Some(b'\n') => {
+                self.bump();
+                return Some(Token::Newline);
+            }
             Some(b'0'...b'9') => {
                 while let Some(b'0'...b'9') = self.current_char() {
                     self.bump();
@@ -146,6 +149,11 @@ impl<'input> Lexer<'input> {
 
 mod tests {
     use super::*;
+
+    #[test]
+    fn lex_newline() {
+        assert_eq!(lex(b"\n"), vec![Token::Newline]);
+    }
 
     #[test]
     fn lex_numbers() {
