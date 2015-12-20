@@ -192,6 +192,21 @@ mod tests {
 
         assert_eq!(lex(b"yu -> bp"),
                    vec![Token::Identifier("yu"), Token::AssignmentArrow, Token::Identifier("bp")]);
+    }
 
+    #[test]
+    fn lex_compound_instructions() {
+        assert_eq!(lex(b"x LSHIFT 2 -> f"),
+                   vec![Token::Identifier("x"),
+                        Token::Operator(Operator::Lshift),
+                        Token::Integer(2),
+                        Token::AssignmentArrow,
+                        Token::Identifier("f")]);
+
+        assert_eq!(lex(b"NOT x -> h"),
+                   vec![Token::Operator(Operator::Not),
+                        Token::Identifier("x"),
+                        Token::AssignmentArrow,
+                        Token::Identifier("h")]);
     }
 }
