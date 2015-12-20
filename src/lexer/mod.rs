@@ -26,11 +26,6 @@ struct Lexer<'input> {
     idx: usize,
 }
 
-enum State {
-    Start,
-}
-
-
 pub fn lex<'input>(input: &'input str) -> Vec<Token<'input>> {
     let mut lexer = Lexer::new(input.as_bytes());
     lexer.lex()
