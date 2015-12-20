@@ -1,7 +1,5 @@
 use lexer::Token;
 
-pub type Ast = Vec<Instruction>;
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Instruction {
     input: Value,
@@ -24,8 +22,27 @@ pub enum Operation {
     Not(Value),
 }
 
-pub fn parse(tokens: Vec<Token>) -> Ast {
-    unimplemented!()
+struct Parser<'input> {
+    tokens: Vec<Token<'input>>,
+}
+
+impl<'input> Parser<'input> {
+    pub fn parse(&mut self) -> Vec<Instruction> {
+        unimplemented!()
+    }
+
+    fn parse_instruction(&mut self) -> Option<Instruction> {
+        unimplemented!()
+    }
+
+    fn parse_value(&mut self) -> Option<Value> {
+        unimplemented!()
+    }
+}
+
+pub fn parse<'input>(tokens: Vec<Token<'input>>) -> Vec<Instruction> {
+    let mut parser = Parser { tokens: tokens };
+    parser.parse()
 }
 
 
