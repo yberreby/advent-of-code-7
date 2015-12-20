@@ -1,4 +1,5 @@
 use lexer::Token;
+use lexer::Operator;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Instruction {
@@ -12,6 +13,13 @@ pub enum Value {
     Wire(String),
     Integer(u16),
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Operand {
+    Integer(u16),
+    Wire(String),
+}
+
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Operation {
@@ -74,11 +82,12 @@ impl<'input> Parser<'input> {
         }
 
         let output_wire = match self.current_token() {
-            Some(&Token::Identifier(id)) => id,
+            Some(&Token::Identifier(id)) => {
+                self.bump();
+                id
+            }
             other => panic!("expected identifier, found {:?}", other),
         };
-
-        self.bump();
 
         Some(Instruction {
             input: value,
@@ -88,17 +97,30 @@ impl<'input> Parser<'input> {
 
     fn parse_value(&self) -> Option<Value> {
         match self.current_token() {
-            Some(&Token::Integer(x)) => {
+            Some(&Token::Integer(x1)) => {
                 self.bump();
                 match self.current_token() {
-                    Some(&Token::AssignmentArrow) => Some(Value::Integer(x)),
-                    // Some(&Token::Operator(op)) => {}
+                    Some(&Token::AssignmentArrow) => Some(Value::Integer(x1)),
+                    Some(&Token::Operator(Operator::Lshift)) => {
+                        self.bump();
+
+                        match self.current_token() {
+                            Some(&Token::Integer(x2)) => {
+                                Some(Value::Operation(Box::new(Operation::Lshift(Value::Integer(x1), Value::Integer(x2)))))
+                            }
+                            _ => panic!(),
+                        }
+                    }
                     _ => panic!(),
                 }
             }
             None => None,
             other => panic!("unexpected {:?}", other),
         }
+    }
+
+    fn parse_operand(&self) -> Option<Operand> {
+        unimplemented!()
     }
 }
 
