@@ -184,4 +184,14 @@ mod tests {
     fn lex_assignment_arrow() {
         assert_eq!(lex(b"->"), vec![Token::AssignmentArrow]);
     }
+
+    #[test]
+    fn lex_simple_instructions() {
+        assert_eq!(lex(b"123 -> ax"),
+                   vec![Token::Integer(123), Token::AssignmentArrow, Token::Identifier("ax")]);
+
+        assert_eq!(lex(b"yu -> bp"),
+                   vec![Token::Identifier("yu"), Token::AssignmentArrow, Token::Identifier("bp")]);
+
+    }
 }
