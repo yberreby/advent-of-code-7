@@ -103,7 +103,7 @@ impl<'input> Parser<'input> {
 }
 
 pub fn parse<'input>(tokens: Vec<Token<'input>>) -> Vec<Instruction> {
-    let mut parser = Parser::new(tokens);
+    let parser = Parser::new(tokens);
     parser.parse()
 }
 
@@ -115,9 +115,9 @@ mod tests {
 
     #[test]
     fn test_parse_value_integer() {
-        let mut parser = Parser::new(vec![Token::Integer(123),
-                                          Token::AssignmentArrow,
-                                          Token::Identifier("aa")]);
+        let parser = Parser::new(vec![Token::Integer(123),
+                                      Token::AssignmentArrow,
+                                      Token::Identifier("aa")]);
 
         assert_eq!(parser.parse_value(), Some(Value::Integer(123)));
     }
