@@ -3,8 +3,8 @@ use lexer::Operator;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Instruction {
-    input: Value,
-    output_wire: String,
+    pub input: Value,
+    pub output_wire: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -137,28 +137,6 @@ impl<'input> Parser<'input> {
             None => None,
             other => panic!("unexpected {:?}", other),
         }
-
-        // match self.current_token() {
-        //     Some(&Token::Integer(x1)) => {
-        //         self.bump();
-        //         match self.current_token() {
-        //             Some(&Token::AssignmentArrow) => Some(Value::Integer(x1)),
-        //             Some(&Token::Operator(Operator::Lshift)) => {
-        //                 self.bump();
-
-        //                 match self.current_token() {
-        //                     Some(&Token::Integer(x2)) => {
-        //                         Some(Value::Operation(Box::new(Operation::Lshift(Value::Integer(x1), Value::Integer(x2)))))
-        //                     }
-        //                     _ => panic!(),
-        //                 }
-        //             }
-        //             _ => panic!(),
-        //         }
-        //     }
-        //     None => None,
-        //     other => panic!("unexpected {:?}", other),
-        // }
     }
 
     fn parse_operand(&self) -> Option<Operand> {
