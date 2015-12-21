@@ -99,46 +99,53 @@ impl<'input, I: Iterator<Item = Token<'input>>> Parser<'input, I> {
     }
 
     fn parse_value(&mut self) -> Option<Value> {
-        match self.tokens.peek() {
-            Some(&Token::Integer(_)) | Some(&Token::Identifier(_)) => {
-                let a = self.parse_operand().unwrap();
+        let next = match self.tokens.peek() {
+            Some(t) => t.clone(),
+            None => return None,
+        };
 
-                match self.tokens.peek() {
-                    Some(&Token::Operator(ref operator)) => {
-                        self.tokens.next();
+        if is_operand(&next) {
+            let a = self.parse_operand().unwrap();
 
-                        let b = self.parse_operand().unwrap();
+            let next = match self.tokens.peek() {
+                Some(t) => t.clone(),
+                None => panic!(),
+            };
 
-                        let operation = match *operator {
-                            Operator::Lshift => Operation::Lshift(a, b),
-                            Operator::Rshift => Operation::Rshift(a, b),
-                            Operator::And => Operation::And(a, b),
-                            Operator::Or => Operation::Or(a, b),
-                            _ => panic!(),
-                        };
+            match next {
+                Token::Operator(ref operator) => {
+                    self.tokens.next();
 
-                        Some(Value::Operation(Box::new(operation)))
-                    }
-                    Some(&Token::AssignmentArrow) => {
-                        match a {
-                            Operand::Integer(x) => Some(Value::Integer(x)),
-                            Operand::Wire(x) => Some(Value::Wire(x)),
-                        }
-                    }
-                    other => {
-                        panic!("expected an operator or an assignment arrow, found {:?}",
-                               other)
+                    let b = self.parse_operand().unwrap();
+
+                    let operation = match *operator {
+                        Operator::Lshift => Operation::Lshift(a, b),
+                        Operator::Rshift => Operation::Rshift(a, b),
+                        Operator::And => Operation::And(a, b),
+                        Operator::Or => Operation::Or(a, b),
+                        _ => panic!(),
+                    };
+
+                    Some(Value::Operation(Box::new(operation)))
+                }
+                Token::AssignmentArrow => {
+                    match a {
+                        Operand::Integer(x) => Some(Value::Integer(x)),
+                        Operand::Wire(x) => Some(Value::Wire(x)),
                     }
                 }
+                other => {
+                    panic!("expected an operator or an assignment arrow, found {:?}",
+                           other)
+                }
             }
-            Some(&Token::Operator(Operator::Not)) => {
-                self.tokens.next();
+        } else if let Token::Operator(Operator::Not) = next {
+            self.tokens.next();
 
-                let a = self.parse_operand().unwrap();
-                Some(Value::Operation(Box::new(Operation::Not(a))))
-            }
-            None => None,
-            other => panic!("unexpected {:?}", other),
+            let a = self.parse_operand().unwrap();
+            Some(Value::Operation(Box::new(Operation::Not(a))))
+        } else {
+            panic!("unexpected token {:?}", next)
         }
     }
 
@@ -150,6 +157,13 @@ impl<'input, I: Iterator<Item = Token<'input>>> Parser<'input, I> {
         };
 
         op
+    }
+}
+
+fn is_operand(token: &Token) -> bool {
+    match *token {
+        Token::Integer(_) | Token::Identifier(_) => true,
+        _ => false,
     }
 }
 
