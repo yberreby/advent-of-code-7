@@ -1,42 +1,43 @@
 use lexer::Token;
 use lexer::Operator;
+use std::borrow::Cow;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Instruction {
-    pub input: Value,
-    pub output_wire: String,
+pub struct Instruction<'a> {
+    pub input: Value<'a>,
+    pub output_wire: Cow<'a, str>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Value {
-    Operation(Box<Operation>),
-    Wire(String),
+pub enum Value<'a> {
+    Operation(Box<Operation<'a>>),
+    Wire(Cow<'a, str>),
     Integer(u16),
 }
 
-impl Value {
-    pub fn from_operand(operand: Operand) -> Value {
+impl<'a> Value<'a> {
+    pub fn from_operand(operand: Operand<'a>) -> Value<'a> {
         match operand {
             Operand::Integer(x) => Value::Integer(x),
-            Operand::Wire(s) => Value::Wire(s),
+            Operand::Wire(s) => Value::Wire(s.into()),
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Operand {
+pub enum Operand<'a> {
     Integer(u16),
-    Wire(String),
+    Wire(Cow<'a, str>),
 }
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Operation {
-    Rshift(Operand, Operand),
-    Lshift(Operand, Operand),
-    Or(Operand, Operand),
-    And(Operand, Operand),
-    Not(Operand),
+pub enum Operation<'a> {
+    Rshift(Operand<'a>, Operand<'a>),
+    Lshift(Operand<'a>, Operand<'a>),
+    Or(Operand<'a>, Operand<'a>),
+    And(Operand<'a>, Operand<'a>),
+    Not(Operand<'a>),
 }
 
 use std::cell::Cell;
@@ -55,7 +56,7 @@ impl<'input, I: Iterator<Item = Token<'input>>> Parser<'input, I> {
         }
     }
 
-    pub fn parse(&mut self) -> Vec<Instruction> {
+    pub fn parse(&mut self) -> Vec<Instruction<'input>> {
         let mut instructions = Vec::new();
 
         loop {
@@ -75,7 +76,7 @@ impl<'input, I: Iterator<Item = Token<'input>>> Parser<'input, I> {
         instructions
     }
 
-    fn parse_instruction(&mut self) -> Option<Instruction> {
+    fn parse_instruction(&mut self) -> Option<Instruction<'input>> {
         let value = match self.parse_value() {
             Some(v) => v,
             None => return None,
@@ -98,7 +99,7 @@ impl<'input, I: Iterator<Item = Token<'input>>> Parser<'input, I> {
         })
     }
 
-    fn parse_value(&mut self) -> Option<Value> {
+    fn parse_value(&mut self) -> Option<Value<'input>> {
         let next = match self.tokens.peek() {
             Some(t) => t.clone(),
             None => return None,
@@ -131,7 +132,7 @@ impl<'input, I: Iterator<Item = Token<'input>>> Parser<'input, I> {
                 Token::AssignmentArrow => {
                     match a {
                         Operand::Integer(x) => Some(Value::Integer(x)),
-                        Operand::Wire(x) => Some(Value::Wire(x)),
+                        Operand::Wire(x) => Some(Value::Wire(x.into())),
                     }
                 }
                 other => {
@@ -149,7 +150,7 @@ impl<'input, I: Iterator<Item = Token<'input>>> Parser<'input, I> {
         }
     }
 
-    fn parse_operand(&mut self) -> Option<Operand> {
+    fn parse_operand(&mut self) -> Option<Operand<'input>> {
         let op = match self.tokens.next() {
             Some(Token::Integer(x)) => Some(Operand::Integer(x)),
             Some(Token::Identifier(id)) => Some(Operand::Wire(id.into())),

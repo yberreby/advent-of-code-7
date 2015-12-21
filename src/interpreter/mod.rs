@@ -1,19 +1,21 @@
 use std::collections::HashMap;
+use std::borrow::Cow;
 use parser::{Instruction, Value, Operation};
 
-fn evaluate(value: &Value,
-            value_map: &HashMap<String, Value>,
-            output_map: &mut HashMap<String, u16>)
-            -> u16 {
+fn evaluate<'input>(value: &Value<'input>,
+                    value_map: &HashMap<Cow<'input, str>, Value<'input>>,
+                    output_map: &mut HashMap<Cow<'input, str>, u16>)
+                    -> u16 {
 
     match *value {
         Value::Integer(x) => x,
         Value::Wire(ref wire_name) => {
-            if let Some(v) = output_map.get(wire_name) {
+            let name: &str = &wire_name;
+            if let Some(v) = output_map.get(name) {
                 return *v;
             }
 
-            let res = evaluate(value_map.get(wire_name).unwrap(), value_map, output_map);
+            let res = evaluate(value_map.get(name).unwrap(), value_map, output_map);
             output_map.insert(wire_name.clone(), res);
             res
         }
@@ -43,7 +45,7 @@ fn evaluate(value: &Value,
     }
 }
 
-pub fn run(instructions: Vec<Instruction>) -> HashMap<String, u16> {
+pub fn run<'input>(instructions: Vec<Instruction<'input>>) -> HashMap<Cow<'input, str>, u16> {
     let mut value_map = HashMap::new();
 
     for instruction in instructions {
@@ -67,7 +69,7 @@ mod tests {
 
     #[test]
     fn test_run_single_constant_instruction() {
-        let mut expected: HashMap<String, u16> = HashMap::new();
+        let mut expected = HashMap::new();
         expected.insert("ax".into(), 45);
 
         assert_eq!(run(vec![Instruction {
@@ -79,7 +81,7 @@ mod tests {
 
     #[test]
     fn test_run_single_rshift_instruction() {
-        let mut expected: HashMap<String, u16> = HashMap::new();
+        let mut expected = HashMap::new();
         expected.insert("zz".into(), 30);
 
         assert_eq!(run(vec![Instruction {
