@@ -166,10 +166,10 @@ mod tests {
 
     #[test]
     fn test_parse_value_integer() {
-        let parser = Parser::new(vec![Token::Integer(123),
-                                      Token::AssignmentArrow,
-                                      Token::Identifier("aa")]
-                                     .into_iter());
+        let mut parser = Parser::new(vec![Token::Integer(123),
+                                          Token::AssignmentArrow,
+                                          Token::Identifier("aa")]
+                                         .into_iter());
 
         assert_eq!(parser.parse_value(), Some(Value::Integer(123)));
     }
