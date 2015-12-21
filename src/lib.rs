@@ -51,3 +51,12 @@ NOT y -> i";
 
     assert_eq!(output, expected);
 }
+
+
+#[test]
+fn test_run_challenge() {
+    let source: &'static str = include_str!("../source.txt");
+    let expected = 46065;
+
+    assert_eq!(*run_source(source).get("a").unwrap(), expected);
+}
