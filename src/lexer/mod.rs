@@ -29,14 +29,9 @@ impl<'input> Iterator for Lexer<'input> {
     }
 }
 
-struct Lexer<'input> {
+pub struct Lexer<'input> {
     buffer: &'input [u8],
     idx: usize,
-}
-
-pub fn lex<'input>(input: &'input str) -> Vec<Token<'input>> {
-    let mut lexer = Lexer::new(input.as_bytes());
-    lexer.lex()
 }
 
 impl<'input> Lexer<'input> {
@@ -45,16 +40,6 @@ impl<'input> Lexer<'input> {
             buffer: input,
             idx: 0,
         }
-    }
-
-    fn lex(&mut self) -> Vec<Token<'input>> {
-        let mut tokens = Vec::new();
-
-        while let Some(token) = self.read_token() {
-            tokens.push(token)
-        }
-
-        tokens
     }
 
     #[inline]
@@ -143,6 +128,11 @@ impl<'input> Lexer<'input> {
 
 mod tests {
     use super::*;
+
+    fn lex<'input>(input: &'input str) -> Vec<Token<'input>> {
+        let mut lexer = Lexer::new(input.as_bytes());
+        lexer.collect()
+    }
 
     #[test]
     fn lex_newline() {

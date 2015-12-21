@@ -5,10 +5,12 @@ mod parser;
 mod interpreter;
 
 use std::collections::HashMap;
+use lexer::Lexer;
+use parser::Parser;
 
 pub fn run_source(program_source: &str) -> HashMap<String, u16> {
-    let tokens = lexer::lex(program_source);
-    let instructions = parser::parse(tokens);
+    let tokens = Lexer::new(program_source.as_bytes());
+    let instructions = Parser::new(tokens).parse();
     interpreter::run(instructions)
 }
 
