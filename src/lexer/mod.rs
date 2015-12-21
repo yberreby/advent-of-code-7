@@ -21,6 +21,14 @@ pub enum Operator {
     Not,
 }
 
+impl<'input> Iterator for Lexer<'input> {
+    type Item = Token<'input>;
+
+    fn next(&mut self) -> Option<Token<'input>> {
+        self.read_token()
+    }
+}
+
 struct Lexer<'input> {
     buffer: &'input [u8],
     idx: usize,
