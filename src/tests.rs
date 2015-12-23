@@ -15,17 +15,6 @@ NOT y -> i";
 
     let output = run_source(program_source);
 
-    //
-    // d: 72
-    // e: 507
-    // f: 492
-    // g: 114
-    // h: 65412
-    // i: 65079
-    // x: 123
-    // y: 456
-    //
-
     let mut expected = FastHashMap::default();
     expected.insert("d".into(), 72);
     expected.insert("e".into(), 507);
