@@ -64,4 +64,3 @@ pub fn run<'input>(instructions: Vec<Instruction<'input>>) -> HashMap<Cow<'input
 
     output_map
 }
-
