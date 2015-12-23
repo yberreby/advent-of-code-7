@@ -1,13 +1,12 @@
 use std::collections::HashMap;
-use std::borrow::Cow;
 use parser::{Instruction, Value, Operation};
 
 #[cfg(test)]
 mod tests;
 
 fn evaluate<'input>(value: &Value<'input>,
-                    value_map: &HashMap<Cow<'input, str>, Value<'input>>,
-                    output_map: &mut HashMap<Cow<'input, str>, u16>)
+                    value_map: &HashMap<&'input str, Value<'input>>,
+                    output_map: &mut HashMap<&'input str, u16>)
                     -> u16 {
 
     match *value {
@@ -48,7 +47,7 @@ fn evaluate<'input>(value: &Value<'input>,
     }
 }
 
-pub fn run<'input>(instructions: Vec<Instruction<'input>>) -> HashMap<Cow<'input, str>, u16> {
+pub fn run<'input>(instructions: Vec<Instruction<'input>>) -> HashMap<&'input str, u16> {
     let mut value_map = HashMap::new();
 
     for instruction in instructions {

@@ -1,26 +1,25 @@
 use lexer::Token;
 use lexer::Operator;
-use std::borrow::Cow;
 use std::iter::Peekable;
 
 #[cfg(test)]
 mod tests;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Instruction<'a> {
-    pub input: Value<'a>,
-    pub output_wire: Cow<'a, str>,
+pub struct Instruction<'input> {
+    pub input: Value<'input>,
+    pub output_wire: &'input str,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Value<'a> {
-    Operation(Box<Operation<'a>>),
-    Wire(Cow<'a, str>),
+pub enum Value<'input> {
+    Operation(Box<Operation<'input>>),
+    Wire(&'input str),
     Integer(u16),
 }
 
-impl<'a> Value<'a> {
-    pub fn from_operand(operand: Operand<'a>) -> Value<'a> {
+impl<'input> Value<'input> {
+    pub fn from_operand(operand: Operand<'input>) -> Value<'input> {
         match operand {
             Operand::Integer(x) => Value::Integer(x),
             Operand::Wire(s) => Value::Wire(s.into()),
@@ -29,19 +28,19 @@ impl<'a> Value<'a> {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Operand<'a> {
+pub enum Operand<'input> {
     Integer(u16),
-    Wire(Cow<'a, str>),
+    Wire(&'input str),
 }
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Operation<'a> {
-    Rshift(Operand<'a>, Operand<'a>),
-    Lshift(Operand<'a>, Operand<'a>),
-    Or(Operand<'a>, Operand<'a>),
-    And(Operand<'a>, Operand<'a>),
-    Not(Operand<'a>),
+pub enum Operation<'input> {
+    Rshift(Operand<'input>, Operand<'input>),
+    Lshift(Operand<'input>, Operand<'input>),
+    Or(Operand<'input>, Operand<'input>),
+    And(Operand<'input>, Operand<'input>),
+    Not(Operand<'input>),
 }
 
 pub struct Parser<'input, I: Iterator<Item = Token<'input>>> {

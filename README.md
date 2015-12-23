@@ -5,8 +5,8 @@ A lexer, parser and interpreter for day 7 of the Advent of Code.
 It finds the answer to both parts of the challenge pretty quickly:
 
     running 2 tests
-    test bench_source_1 ... bench:     180,218 ns/iter (+/- 9,117)
-    test bench_source_2 ... bench:     178,360 ns/iter (+/- 17,943)
+    test bench_source_1 ... bench:     156,947 ns/iter (+/- 4,850)
+    test bench_source_2 ... bench:     154,676 ns/iter (+/- 5,935)
 
 ## The challenge
 
