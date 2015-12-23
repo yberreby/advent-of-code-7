@@ -4,7 +4,9 @@ A lexer, parser and interpreter for day 7 of the Advent of Code.
 ## Benchmark
 It finds the answer to both parts of the challenge pretty quickly:
 
-    ../../target/release/aoc-7-compiler  0.00s user 0.00s system 75% cpu 0.003 total
+    running 2 tests
+    test bench_source_1 ... bench:     180,218 ns/iter (+/- 9,117)
+    test bench_source_2 ... bench:     178,360 ns/iter (+/- 17,943)
 
 ## The challenge
 
