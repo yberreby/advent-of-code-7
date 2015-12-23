@@ -1,4 +1,7 @@
-#[deny(overflowing_literals)]
+#![feature(hashmap_hasher)]
+#![deny(overflowing_literals)]
+
+extern crate fnv;
 
 mod lexer;
 mod parser;
@@ -8,7 +11,12 @@ use std::collections::HashMap;
 use lexer::Lexer;
 use parser::Parser;
 
-pub fn run_source<'input>(program_source: &'input str) -> HashMap<&'input str, u16> {
+use std::collections::hash_state::DefaultState;
+use fnv::FnvHasher;
+
+pub type FastHashMap<K, V> = HashMap<K, V, DefaultState<FnvHasher>>;
+
+pub fn run_source<'input>(program_source: &'input str) -> FastHashMap<&'input str, u16> {
     let tokens = Lexer::new(program_source.as_bytes());
     let instructions = Parser::new(tokens).parse();
     interpreter::run(instructions)
@@ -39,7 +47,7 @@ NOT y -> i";
     // y: 456
     //
 
-    let mut expected = HashMap::new();
+    let mut expected = FastHashMap::default();
     expected.insert("d".into(), 72);
     expected.insert("e".into(), 507);
     expected.insert("f".into(), 492);

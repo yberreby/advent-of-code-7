@@ -1,10 +1,10 @@
 use super::*;
 use parser::{Instruction, Value, Operation, Operand};
-use std::collections::HashMap;
+use FastHashMap;
 
 #[test]
 fn test_run_single_constant_instruction() {
-    let mut expected = HashMap::new();
+    let mut expected = FastHashMap::default();
     expected.insert("ax".into(), 45);
 
     assert_eq!(run(vec![Instruction {
@@ -16,7 +16,7 @@ fn test_run_single_constant_instruction() {
 
 #[test]
 fn test_run_single_rshift_instruction() {
-    let mut expected = HashMap::new();
+    let mut expected = FastHashMap::default();
     expected.insert("zz".into(), 30);
 
     assert_eq!(run(vec![Instruction {

@@ -4,6 +4,7 @@ name = "aoc-7-compiler"
 version = "0.1.0"
 
 [dependencies]
+fnv = "1.0.0"
 lazy_static = "0.1.15"
 regex = "0.1.43"
 serde = "0.6.6"

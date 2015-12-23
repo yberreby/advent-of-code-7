@@ -1,12 +1,12 @@
-use std::collections::HashMap;
+use FastHashMap;
 use parser::{Instruction, Value, Operation};
 
 #[cfg(test)]
 mod tests;
 
 fn evaluate<'input>(value: &Value<'input>,
-                    value_map: &HashMap<&'input str, Value<'input>>,
-                    output_map: &mut HashMap<&'input str, u16>)
+                    value_map: &FastHashMap<&'input str, Value<'input>>,
+                    output_map: &mut FastHashMap<&'input str, u16>)
                     -> u16 {
 
     match *value {
@@ -47,14 +47,14 @@ fn evaluate<'input>(value: &Value<'input>,
     }
 }
 
-pub fn run<'input>(instructions: Vec<Instruction<'input>>) -> HashMap<&'input str, u16> {
-    let mut value_map = HashMap::new();
+pub fn run<'input>(instructions: Vec<Instruction<'input>>) -> FastHashMap<&'input str, u16> {
+    let mut value_map = FastHashMap::default();
 
     for instruction in instructions {
         value_map.insert(instruction.output_wire, instruction.input);
     }
 
-    let mut output_map = HashMap::new();
+    let mut output_map = FastHashMap::default();
 
     for (key, value) in &value_map {
         let result = evaluate(value, &value_map, &mut output_map);
